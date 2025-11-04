@@ -18,9 +18,18 @@ How do you add sounds in pygame?
 import pygame
 import random
 import math
+from pygame import mixer
 
 # Initialize Pygame
 pygame.init()
+
+background = pygame.image.load('resources/background-1.jpg')
+background = pygame.transform.scale(background, (800, 600))
+
+# Score text
+score_font = pygame.font.Font('resources/TimesNewBastard-Italic.ttf', 32)
+font_color = (255, 255, 255)
+font_location = (10, 10)
 
 # Set up display
 screen = pygame.display.set_mode((800, 600))
@@ -41,6 +50,7 @@ class Bullet:
 
     def shoot(self):
         screen.blit(self.rotated,(self.x,self.y))
+        
 
     def move(self):
         self.y += self.change
@@ -53,6 +63,7 @@ class Player:
         self.x = x
         self.y = (600 - 70)  # Position at the bottom of the screen
         self.change = change
+        self.score = 0
         
     def player_set(self):
         screen.blit(self.img,(self.x,self.y))
@@ -91,17 +102,32 @@ class Enemy:
             self.y = 0
     
     def is_hit(self,bullet):
-        if math.sqrt((bullet.x-self.x)**2+(bullet.y-self.y)**2) < 27:
+        if math.sqrt((bullet.x-self.x)**2+(bullet.y-self.y)**2) < 48:
             return True
+        else: return False
+
+    def lose(self):
+        if self.y >= 536-64:
+            return True
+        else: return False
+
 
 
 
 
 player = Player(370)
-enemny = Enemy(random.randint(0,800-64), random.randint(0,300-64))
+#enemy = Enemy(random.randint(0,800-64), random.randint(0,300-64))
 bullet = Bullet()
 
-
+def spawn_enemies():
+    enemies = []
+    for i in range(6):
+        x=random.randint(0,800-64)
+        y=random.randint(0,300-64)
+        enemies.append(Enemy(x, y))
+    return enemies
+enemies= spawn_enemies()
+game_over = False
 
 
 # Main game loop
@@ -124,6 +150,7 @@ while running:
                 
                 if bullet.state == "ready":
                     bullet.state = "fire"
+                    mixer.Sound('resources/laser.wav').play()
                     bullet.x = player.x + 16
                     bullet.y = player.y
 
@@ -131,22 +158,49 @@ while running:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 player.change = 0
 
-    # Movement
+    for i, enemy in enumerate(enemies) : # enemy handling
+        enemy.move()
+        if enemy.is_hit(bullet):
+            mixer.Sound('resources/explosion.wav').play()
+            player.score += 1
+            bullet.state = "ready"
+            bullet.y = player.y
+            bullet.x = player.x + 16
+            enemies.pop(i)
+            if enemies == []:
+                enemies = spawn_enemies()
+        elif enemy.lose():
+            enemies = []
+            game_over = True
 
-    player.move()
-    enemny.move()
-   
-    bullet.move()    
+    if game_over == True:
+        font_render = score_font.render(f"GAME OVER! Final Score: {player.score}", True, font_color)
+        screen.fill((0, 0, 0))  # Clear screen with black   
 
-    # Show Items
 
-    screen.fill((0, 0, 0))  # Clear screen with black   
-    #screen.blit(pygame.image.load('resources/background-1.jpg'), (0, 0))  # Background
-    player.player_set()
-    enemny.enemy_set()
-    if bullet.state == "fire":
-        bullet.shoot()
+    else:
+        player.move()
+        bullet.move() 
+        # background handling
+        screen.fill((0, 0, 0))  # Clear screen with black   
+        screen.blit(background), (0, 0)  # Background
+
+        #music
+        mixer.music.load('resources/background.wav')
+        mixer.music.play(-1) # -1 means loop indefinitely
+
+
+        # Text
+        font_render = score_font.render(f"Score: {player.score}", True, font_color)
+        screen.blit(font_render, font_location)
+
+        # Show Items
+        player.player_set()
+
+        for enemy in enemies:
+            enemy.enemy_set()
+        if bullet.state == "fire":
+            bullet.shoot()
     
-
     
     pygame.display.flip()  # Update the display
