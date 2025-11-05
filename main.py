@@ -115,6 +115,25 @@ class Enemy:
         else: return False
 
 
+class Button:
+    def __init__(self, x, y, img, scale=1):
+        self.x = x
+        self.y = y
+        self.img = img
+        width = img.get_width()
+        height = img.get_height()
+        self.img = pygame.transform.scale(img, (int(width * scale), int(height * scale)))
+        self.scale = scale
+        self.rect = self.img.get_rect(topleft=(self.x, self.y))
+    def draw(self):
+        pos = pygame.mouse.get_pos()
+        print(pos)
+        if self.rect.collidepoint(pos):
+            print("Button hover")
+            if pygame.mouse.get_pressed()[0] == 1:
+                print("Button clicked")
+                return True
+        screen.blit(self.img, (self.x, self.y))
 
 
 
@@ -130,7 +149,8 @@ def spawn_enemies():
         enemies.append(Enemy(x, y))
     return enemies
 enemies= spawn_enemies()
-game_over = False
+
+game_over = True
 
 
 # Main game loop
@@ -180,6 +200,14 @@ while running:
         screen.fill((0, 0, 0))  # Clear screen with black 
         font_render = score_font.render(f"GAME OVER! Final Score: {player.score}", True, font_color)
         screen.blit(font_render, (200, 250))
+
+        restart_font = pygame.font.Font('resources/TimesNewBastard-Italic.ttf', 32)
+        restart_txt = restart_font.render("Restart", True, font_color)
+        button = Button(350, 350, restart_txt, 1)
+        if button.draw():
+            game_over = False
+            player.score = 0
+            enemies = spawn_enemies()
 
 
     else:
