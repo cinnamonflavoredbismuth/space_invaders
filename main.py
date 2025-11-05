@@ -11,6 +11,8 @@ How are objects placed on the screen in pygame?
 What events can I listen for in pygame? What do those events do?
 
 How can I detect collision with pygame?
+seeing if they are within a certain distance of each other
+
 
 How do you add sounds in pygame?
 
