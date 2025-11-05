@@ -1,21 +1,19 @@
 #CS Space Invadeers
 """
 How do you set up pygame?
-
+    pygame.init()
 What is the purpose of the "While running" loop?
-
+    so the program keeps running and doesn't close immediately
 How do you create a screen in pygame?
-
+    pygame.display.set_mode((1200, 720))
 How are objects placed on the screen in pygame?
-
+    screen.blit or screen.draw
 What events can I listen for in pygame? What do those events do?
-
+    exit, keypress, mouse click, mouse movement
 How can I detect collision with pygame?
-seeing if they are within a certain distance of each other
-
-
+    by checking if the coordinates of two objects are within a certain distance of each other
 How do you add sounds in pygame?
-
+    pygame.mixer.sound.play(pygame.mixer.Sound('soundfile.wav'))
 """
 import pygame
 import random
@@ -32,6 +30,9 @@ background = pygame.transform.scale(background, (800, 600))
 score_font = pygame.font.Font('resources/TimesNewBastard-Italic.ttf', 32)
 font_color = (255, 255, 255)
 font_location = (10, 10)
+
+mixer.music.load('resources\\background.wav')
+mixer.music.play(-1) # -1 means loop indefinitely
 
 # Set up display
 screen = pygame.display.set_mode((800, 600))
@@ -176,8 +177,9 @@ while running:
             game_over = True
 
     if game_over == True:
+        screen.fill((0, 0, 0))  # Clear screen with black 
         font_render = score_font.render(f"GAME OVER! Final Score: {player.score}", True, font_color)
-        screen.fill((0, 0, 0))  # Clear screen with black   
+        screen.blit(font_render, (200, 250))
 
 
     else:
@@ -188,8 +190,7 @@ while running:
         screen.blit(background), (0, 0)  # Background
 
         #music
-        mixer.music.load('resources/background.wav')
-        mixer.music.play(-1) # -1 means loop indefinitely
+        
 
 
         # Text
